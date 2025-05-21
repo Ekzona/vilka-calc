@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Вилка</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+      background-color: #f5f5f5;
+    }
+    .container {
+      max-width: 500px;
+      margin: auto;
+      background: white;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+      color: #333;
+    }
+    input, button {
+      width: 100%;
+      padding: 0.75rem;
+      margin: 0.5rem 0;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    .result {
+      margin-top: 1rem;
+      background: #e8f5e9;
+      padding: 1rem;
+      border-radius: 5px;
+      color: #000;
+    }
+    .label-title {
+      font-weight: bold;
+      margin-top: 1rem;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📊 Вилка</h1>
+    <h2>Введите данные</h2>
+    <label class="label-title">Победа 1</label>
+    <label>Коэффициент на победу 1:</label>
+    <input type="number" id="k1" step="0.01" required />
+    <label class="label-title">Победа 2</label>
+    <label>Коэффициент на победу 2:</label>
+    <input type="number" id="k2" step="0.01" required />
+    <label class="label-title">Ставка</label>
+    <label>Сумма ставки (₽):</label>
+    <input type="number" id="stake" step="1" required />
+    <button onclick="calculateArb()">Рассчитать</button>
+    <div class="result" id="result"></div>
+  </div>
+
+  <script>
+    function calculateArb() {
+      const k1 = parseFloat(document.getElementById('k1').value);
+      const k2 = parseFloat(document.getElementById('k2').value);
+      const stake = parseFloat(document.getElementById('stake').value);
+
+      const invSum = 1 / k1 + 1 / k2;
+
+      if (invSum >= 1) {
+        document.getElementById('result').innerHTML = '❌ Вилки нет: коэффициенты не подходят.';
+        return;
+      }
+
+      const s1 = stake / (1 + (k1 / k2));
+      const s2 = stake - s1;
+
+      const profit1 = Math.floor(s1);
+      const profit2 = Math.floor(s2);
+
+      const totalStake = profit1 + profit2;
+      const win1 = profit1 * k1;
+      const win2 = profit2 * k2;
+
+      const guaranteed = Math.floor(Math.min(win1, win2));
+      const profit = guaranteed - totalStake;
+
+      let mainLabel1 = '🛡 Ставка 1';
+      let mainLabel2 = '🚀 Ставка 2';
+
+      if (win1 > win2) {
+        mainLabel1 = '🚀 Ставка 1';
+        mainLabel2 = '🛡 Ставка 2';
+      }
+
+      document.getElementById('result').innerHTML = `
+        ✅ Вилка с защитной ставкой:<br>
+        ${mainLabel1}: <b>${profit1} ₽</b><br>
+        ${mainLabel2}: <b>${profit2} ₽</b><br>
+        💰 Гарантированный выигрыш: <b>${guaranteed} ₽</b><br>
+        📈 Прибыль: <b>${profit} ₽</b>
+      `;
+    }
+  </script>
+</body>
+</html>
